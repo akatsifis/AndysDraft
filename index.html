@@ -232,6 +232,12 @@
             align-items: center;
             justify-content: center;
             touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.2);
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
         }
         
         .favorite-btn {
@@ -606,11 +612,11 @@
                     </div>
                     <div class="player-actions">
                         <button class="action-btn favorite-btn ${player.favorited ? 'active' : ''}" 
-                                onclick="toggleFavorite('${player.id}')">
+                                data-player-id="${player.id}" data-action="favorite">
                             ${player.favorited ? '⭐' : '☆'}
                         </button>
                         <button class="action-btn taken-btn ${player.taken ? 'active' : ''}" 
-                                onclick="toggleTaken('${player.id}')">
+                                data-player-id="${player.id}" data-action="taken">
                             ${player.taken ? '✓' : '✗'}
                         </button>
                     </div>
@@ -618,6 +624,26 @@
                 
                 container.appendChild(playerDiv);
             });
+
+            // Add event listeners for all action buttons
+            container.addEventListener('click', handleButtonClick);
+        }
+
+        function handleButtonClick(event) {
+            // Check if clicked element is an action button
+            if (event.target.classList.contains('action-btn')) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const playerId = event.target.getAttribute('data-player-id');
+                const action = event.target.getAttribute('data-action');
+                
+                if (action === 'favorite') {
+                    toggleFavorite(playerId);
+                } else if (action === 'taken') {
+                    toggleTaken(playerId);
+                }
+            }
         }
 
         function toggleFavorite(playerId) {
