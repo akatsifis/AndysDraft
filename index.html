@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Fantasy Player Tracker 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 10px;
+            font-size: 16px;
+            line-height: 1.4;
+            color: white;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            font-weight: 900;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #3a3a3a, #2a2a2a);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #555;
+        }
+        
+        .stat-label {
+            font-size: 0.7em;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
+        
+        .stat-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .controls {
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: white;
+        }
+        
+        .search-box input::placeholder {
+            color: #888;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        select, button {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #3a3a3a;
+            color: white;
+            cursor: pointer;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #4a4a4a, #2a2a2a);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .position-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 5px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+        
+        .tab {
+            padding: 8px 12px;
+            background: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #666, #444);
+            color: #fff;
+        }
+        
+        .players-list {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .player-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+        
+        .player-item:hover {
+            background: #3a3a3a;
+        }
+        
+        .player-item.taken {
+            opacity: 0.5;
+            background: #2a1a1a;
+            text-decoration: line-through;
+        }
+        
+        .player-item.favorited {
+            background: linear-gradient(135deg, #4a4a2a, #3a3a1a);
+            border-left: 4px solid #ffd700;
+        }
+        
+        .player-item.taken.favorited {
+            background: linear-gradient(135deg, #2a2a1a, #1a1a0a);
+        }
+        
+        .player-rank {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #888;
+            width: 35px;
+            text-align: center;
+        }
+        
+        .player-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+        
+        .player-name {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 2px;
+        }
+        
+        .player-details {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+        
+        .player-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .favorite-btn {
+            background: #ffd700;
+            color: #000;
+        }
+        
+        .favorite-btn.active {
+            background: #ffaa00;
+        }
+        
+        .taken-btn {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .taken-btn.active {
+            background: #888;
+        }
+        
+        .drafted-by {
+            font-size: 0.7em;
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-top: 3px;
+        }
+        
+        .clear-all {
+            background: #ff6666 !important;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .floating-summary {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 10px;
+            padding: 10px;
+            border: 1px solid #555;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            font-size: 12px;
+        }
+        
+        .managers-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 5px;
+            margin-top: 10px;
+        }
+        
+        .manager-btn {
+            padding: 8px 4px;
+            font-size: 11px;
+            border-radius: 4px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            cursor: pointer;
+        }
+        
+        .manager-btn.selected {
+            background: #666;
+            border-color: #888;
+        }
+        
+        .tier-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .tier-1 { background: #ff4444; color: white; }
+        .tier-2 { background: #ff8844; color: white; }
+        .tier-3 { background: #ffaa44; color: black; }
+        .tier-4 { background: #88ff44; color: black; }
+        .tier-5 { background: #44ff88; color: black; }
+        .tier-6 { background: #44aaff; color: white; }
+        .tier-default { background: #888; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏈 Fantasy Player Tracker 2025</h1>
+        
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">Total Players</div>
+                <div class="stat-value" id="totalPlayers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Taken</div>
+                <div class="stat-value" id="takenCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Favorites</div>
+                <div class="stat-value" id="favoritesCount">0</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search players...">
+            </div>
+            
+            <div class="filters">
+                <select id="teamFilter">
+                    <option value="">All Teams</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="all">All Players</option>
+                    <option value="available">Available</option>
+                    <option value="taken">Taken</option>
+                    <option value="favorites">Favorites</option>
+                </select>
+            </div>
+            
+            <button onclick="clearAllData()" class="clear-all">🗑️ Clear All Data</button>
+        </div>
+        
+        <div class="position-tabs" id="positionTabs"></div>
+        
+        <div class="players-list" id="playersList"></div>
+        
+        <!-- Manager Selection Modal -->
+        <div id="managerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2a2a2a; padding: 20px; border-radius: 10px; border: 1px solid #555;">
+                <h3 style="margin-bottom: 15px; text-align: center;">Who drafted this player?</h3>
+                <div class="managers-list" id="managersList"></div>
+                <button onclick="closeManagerModal()" style="width: 100%; margin-top: 15px; background: #666;">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="floating-summary" id="floatingSummary">
+        <div>Available: <span id="floatAvailable">0</span></div>
+        <div>Taken: <span id="floatTaken">0</span></div>
+    </div>
+
+    <script>
+        // Fantasy managers from the draft tracker
+        const managers = [
+            {name: "Pat", emoji: "🍀"},
+            {name: "Dennis", emoji: "🍞"}, 
+            {name: "Todd", emoji: "🏆"},
+            {name: "Comrey", emoji: "🏞️"},
+            {name: "Bones", emoji: "🦴"},
+            {name: "Matt", emoji: "🐍"},
+            {name: "Abe", emoji: "⚖️"},
+            {name: "Brian", emoji: "🥩"},
+            {name: "Tony", emoji: "⛳"},
+            {name: "Rick", emoji: "🐶"},
+            {name: "Steve", emoji: "🍺"},
+            {name: "Andy", emoji: "👑"}
+        ];
+
+        let allPlayers = [];
+        let filteredPlayers = [];
+        let currentPosition = 'ALL';
+        let selectedPlayerForDrafting = null;
+
+        async function loadPlayers() {
+            try {
+                const csvData = await window.fs.readFile('FantasyPros_2025_Draft_ALL_Rankings.csv', { encoding: 'utf8' });
+                const parsed = Papa.parse(csvData, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true
+                });
+
+                allPlayers = parsed.data.map(player => ({
+                    ...player,
+                    id: `${player["PLAYER NAME"]}_${player.TEAM}`,
+                    playerName: player["PLAYER NAME"],
+                    position: player.POS,
+                    team: player.TEAM,
+                    rank: player.RK,
+                    tier: player.TIERS,
+                    byeWeek: player["BYE WEEK"],
+                    sos: player["SOS SEASON"],
+                    ecrVsAdp: player["ECR VS. ADP"],
+                    taken: false,
+                    favorited: false,
+                    draftedBy: null
+                }));
+
+                loadSavedData();
+                setupFilters();
+                setupPositionTabs();
+                filterAndDisplay();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading players:', error);
+                document.getElementById('playersList').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; color: #ff6666;">Error loading player data. Please make sure the CSV file is uploaded.</div>';
+            }
+        }
+
+        function loadSavedData() {
+            const savedData = localStorage.getItem('fantasyPlayerData');
+            if (savedData) {
+                const saved = JSON.parse(savedData);
+                allPlayers.forEach(player => {
+                    const savedPlayer = saved[player.id];
+                    if (savedPlayer) {
+                        player.taken = savedPlayer.taken || false;
+                        player.favorited = savedPlayer.favorited || false;
+                        player.draftedBy = savedPlayer.draftedBy || null;
+                    }
+                });
+            }
+        }
+
+        function saveData() {
+            const dataToSave = {};
+            allPlayers.forEach(player => {
+                if (player.taken || player.favorited) {
+                    dataToSave[player.id] = {
+                        taken: player.taken,
+                        favorited: player.favorited,
+                        draftedBy: player.draftedBy
+                    };
+                }
+            });
+            localStorage.setItem('fantasyPlayerData', JSON.stringify(dataToSave));
+        }
+
+        function setupFilters() {
+            const teamFilter = document.getElementById('teamFilter');
+            const teams = [...new Set(allPlayers.map(p => p.team))].sort();
+            
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+
+            teamFilter.addEventListener('change', filterAndDisplay);
+            document.getElementById('statusFilter').addEventListener('change', filterAndDisplay);
+            document.getElementById('searchInput').addEventListener('input', filterAndDisplay);
+        }
+
+        function setupPositionTabs() {
+            const tabsContainer = document.getElementById('positionTabs');
+            const positions = ['ALL', 'QB', 'RB', 'WR', 'TE', 'K', 'DST', 'FAV'];
+            
+            positions.forEach(pos => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${pos === 'ALL' ? 'active' : ''}`;
+                tab.textContent = pos === 'FAV' ? '⭐ Favorites' : pos;
+                tab.onclick = () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentPosition = pos;
+                    filterAndDisplay();
+                };
+                tabsContainer.appendChild(tab);
+            });
+
+            // Setup manager modal
+            const managersList = document.getElementById('managersList');
+            managers.forEach(manager => {
+                const btn = document.createElement('button');
+                btn.className = 'manager-btn';
+                btn.textContent = `${manager.emoji} ${manager.name}`;
+                btn.onclick = () => selectManager(manager);
+                managersList.appendChild(btn);
+            });
+        }
+
+        function filterAndDisplay() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const teamFilter = document.getElementById('teamFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredPlayers = allPlayers.filter(player => {
+                // Position filter
+                if (currentPosition === 'FAV') {
+                    if (!player.favorited) return false;
+                } else if (currentPosition !== 'ALL') {
+                    if (!player.position.startsWith(currentPosition)) return false;
+                }
+
+                // Search filter
+                if (searchTerm && !player.playerName.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+
+                // Team filter
+                if (teamFilter && player.team !== teamFilter) {
+                    return false;
+                }
+
+                // Status filter
+                if (statusFilter === 'available' && player.taken) return false;
+                if (statusFilter === 'taken' && !player.taken) return false;
+                if (statusFilter === 'favorites' && !player.favorited) return false;
+
+                return true;
+            });
+
+            displayPlayers();
+            updateStats();
+        }
+
+        function displayPlayers() {
+            const container = document.getElementById('playersList');
+            container.innerHTML = '';
+
+            if (filteredPlayers.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; opacity: 0.6;">No players found</div>';
+                return;
+            }
+
+            filteredPlayers.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = `player-item ${player.taken ? 'taken' : ''} ${player.favorited ? 'favorited' : ''}`;
+                
+                const tierClass = player.tier ? `tier-${Math.min(player.tier, 6)}` : 'tier-default';
+                
+                playerDiv.innerHTML = `
+                    <div class="player-rank">${player.rank}</div>
+                    <div class="tier-indicator ${tierClass}">${player.tier || '?'}</div>
+                    <div class="player-info">
+                        <div class="player-name">${player.playerName}</div>
+                        <div class="player-details">
+                            ${player.position} • ${player.team} • Bye: ${player.byeWeek}
+                            ${player.sos ? ` • SOS: ${player.sos}` : ''}
+                        </div>
+                        ${player.draftedBy ? `<div class="drafted-by">Drafted by ${player.draftedBy}</div>` : ''}
+                    </div>
+                    <div class="player-actions">
+                        <button class="action-btn favorite-btn ${player.favorited ? 'active' : ''}" 
+                                onclick="toggleFavorite('${player.id}')">
+                            ${player.favorited ? '⭐' : '☆'}
+                        </button>
+                        <button class="action-btn taken-btn ${player.taken ? 'active' : ''}" 
+                                onclick="toggleTaken('${player.id}')">
+                            ${player.taken ? '✓' : '✗'}
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(playerDiv);
+            });
+        }
+
+        function toggleFavorite(playerId) {
+            const player = allPlayers.find(p => p.id === playerId);
+            if (player) {
+                player.favorited = !player.favorited;
+                saveData();
+                filterAndDisplay();
+            }
+        }
+
+        function toggleTaken(playerId) {
+            const player = allPlayers.find(p => p.id === playerId);
+            if (!player) return;
+
+            if (player.taken) {
+                // Un-draft player
+                player.taken = false;
+                player.draftedBy = null;
+                saveData();
+                filterAndDisplay();
+            } else {
+                // Show manager selection modal
+                selectedPlayerForDrafting = player;
+                document.getElementById('managerModal').style.display = 'block';
+            }
+        }
+
+        function selectManager(manager) {
+            if (selectedPlayerForDrafting) {
+                selectedPlayerForDrafting.taken = true;
+                selectedPlayerForDrafting.draftedBy = `${manager.emoji} ${manager.name}`;
+                saveData();
+                filterAndDisplay();
+            }
+            closeManagerModal();
+        }
+
+        function closeManagerModal() {
+            document.getElementById('managerModal').style.display = 'none';
+            selectedPlayerForDrafting = null;
+        }
+
+        function updateStats() {
+            const total = allPlayers.length;
+            const taken = allPlayers.filter(p => p.taken).length;
+            const favorites = allPlayers.filter(p => p.favorited).length;
+            const available = total - taken;
+
+            document.getElementById('totalPlayers').textContent = total;
+            document.getElementById('takenCount').textContent = taken;
+            document.getElementById('favoritesCount').textContent = favorites;
+            document.getElementById('floatAvailable').textContent = available;
+            document.getElementById('floatTaken').textContent = taken;
+        }
+
+        function clearAllData() {
+            if (confirm('This will clear ALL player data (taken/favorites). Are you sure?')) {
+                allPlayers.forEach(player => {
+                    player.taken = false;
+                    player.favorited = false;
+                    player.draftedBy = null;
+                });
+                localStorage.removeItem('fantasyPlayerData');
+                filterAndDisplay();
+            }
+        }
+
+        // Load Papa Parse and initialize
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js';
+        script.onload = loadPlayers;
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
