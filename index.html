@@ -77,12 +77,13 @@
         
         .search-box input {
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
+            padding: 16px;
+            font-size: 18px;
             border: 2px solid #555;
-            border-radius: 8px;
+            border-radius: 10px;
             background: #2a2a2a;
             color: white;
+            min-height: 55px;
         }
         
         .search-box input::placeholder {
@@ -97,13 +98,15 @@
         }
         
         select, button {
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #555;
-            border-radius: 6px;
+            padding: 14px;
+            font-size: 16px;
+            border: 2px solid #555;
+            border-radius: 8px;
             background: #3a3a3a;
             color: white;
             cursor: pointer;
+            min-height: 50px;
+            touch-action: manipulation;
         }
         
         button {
@@ -120,20 +123,26 @@
         .position-tabs {
             display: flex;
             overflow-x: auto;
-            gap: 5px;
+            gap: 8px;
             margin-bottom: 15px;
-            padding-bottom: 5px;
+            padding: 5px 0 10px 0;
+            -webkit-overflow-scrolling: touch;
         }
         
         .tab {
-            padding: 8px 12px;
+            padding: 12px 16px;
             background: #3a3a3a;
-            border: 1px solid #555;
-            border-radius: 6px;
+            border: 2px solid #555;
+            border-radius: 8px;
             cursor: pointer;
             white-space: nowrap;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+            flex-shrink: 0;
         }
         
         .tab.active {
@@ -142,20 +151,23 @@
         }
         
         .players-list {
-            max-height: 60vh;
+            max-height: 65vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
         }
         
         .player-item {
             display: flex;
             align-items: center;
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 16px;
+            margin-bottom: 10px;
             background: #333;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
             touch-action: manipulation;
+            min-height: 70px;
         }
         
         .player-item:hover {
@@ -192,27 +204,34 @@
         
         .player-name {
             font-weight: bold;
-            font-size: 1em;
-            margin-bottom: 2px;
+            font-size: 1.1em;
+            margin-bottom: 3px;
         }
         
         .player-details {
-            font-size: 0.8em;
+            font-size: 0.9em;
             opacity: 0.8;
         }
         
         .player-actions {
             display: flex;
-            gap: 8px;
+            gap: 12px;
+            flex-shrink: 0;
         }
         
         .action-btn {
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 4px;
+            padding: 10px 14px;
+            font-size: 16px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            min-width: 50px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
         }
         
         .favorite-btn {
@@ -249,15 +268,17 @@
         
         .floating-summary {
             position: fixed;
-            bottom: 20px;
+            top: 20px;
             right: 20px;
             background: rgba(40, 40, 40, 0.95);
             border-radius: 10px;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #555;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 100;
         }
         
         .managers-list {
@@ -268,13 +289,19 @@
         }
         
         .manager-btn {
-            padding: 8px 4px;
-            font-size: 11px;
-            border-radius: 4px;
+            padding: 15px 8px;
+            font-size: 14px;
+            border-radius: 8px;
             background: #444;
             color: white;
-            border: 1px solid #666;
+            border: 2px solid #666;
             cursor: pointer;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            touch-action: manipulation;
         }
         
         .manager-btn.selected {
