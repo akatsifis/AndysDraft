@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+.player-item.taken.favorited {
+            background: linear-gradient(135deg, #2a2a1a, #1a1a0a);
+        }<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -185,8 +187,20 @@
             border-left: 4px solid #ffd700;
         }
         
-        .player-item.taken.favorited {
-            background: linear-gradient(135deg, #2a2a1a, #1a1a0a);
+        .player-item.keeper {
+            opacity: 0.6;
+            background: #2a2a1a;
+            text-decoration: line-through;
+            border-left: 4px solid #ffa500;
+        }
+        
+        .player-item.keeper .player-name {
+            text-decoration: line-through;
+        }
+        
+        .player-item.keeper .action-btn {
+            opacity: 0.3;
+            pointer-events: none;
         }
         
         .player-rank {
@@ -411,6 +425,19 @@
             {name: "Andy", emoji: "👑"}
         ];
 
+        // Players marked as keepers
+        const keeperPlayers = [
+            // QBs
+            "Drake Maye", "Jordan Love", "Baker Mayfield", "Michael Penix", 
+            "Justin Fields", "Jalen Hurts", "Josh Allen",
+            // RBs  
+            "Jaylen Warren", "Bucky Irving", "Chase Brown", "Chuba Hubbard", "De'von Achane",
+            // WRs
+            "Jordan Addison", "Xavier Worthy", "Justin Jefferson", "Brian Thomas",
+            // TEs
+            "Sam LaPorta", "Brock Bowers", "Trey McBride"
+        ];
+
         let allPlayers = [];
         let filteredPlayers = [];
         let currentPosition = 'ALL';
@@ -438,21 +465,28 @@
                     skipEmptyLines: true
                 });
 
-                allPlayers = parsed.data.map(player => ({
-                    ...player,
-                    id: `${player["PLAYER NAME"]}_${player.TEAM}`,
-                    playerName: player["PLAYER NAME"],
-                    position: player.POS,
-                    team: player.TEAM,
-                    rank: player.RK,
-                    tier: player.TIERS,
-                    byeWeek: player["BYE WEEK"],
-                    sos: player["SOS SEASON"],
-                    ecrVsAdp: player["ECR VS. ADP"],
-                    taken: false,
-                    favorited: false,
-                    draftedBy: null
-                }));
+                allPlayers = parsed.data
+                    .map((player, index) => {
+                        const playerName = player["PLAYER NAME"] || '';
+                        const isKeeper = keeperPlayers.includes(playerName);
+                        
+                        return {
+                            ...player,
+                            id: `player_${index}_${player["PLAYER NAME"]?.replace(/[^a-zA-Z0-9]/g, '_')}_${player.TEAM}`,
+                            playerName: playerName || 'Unknown Player',
+                            position: player.POS || 'Unknown',
+                            team: player.TEAM || 'Unknown',
+                            rank: player.RK || index + 1,
+                            tier: player.TIERS || 0,
+                            byeWeek: player["BYE WEEK"] || 'Unknown',
+                            sos: player["SOS SEASON"] || '',
+                            ecrVsAdp: player["ECR VS. ADP"] || '',
+                            taken: isKeeper, // Mark keepers as already taken
+                            favorited: false,
+                            draftedBy: isKeeper ? "🔒 Keeper" : null,
+                            isKeeper: isKeeper
+                        };
+                    });
 
                 loadSavedData();
                 setupFilters();
@@ -595,7 +629,16 @@
 
             filteredPlayers.forEach(player => {
                 const playerDiv = document.createElement('div');
-                playerDiv.className = `player-item ${player.taken ? 'taken' : ''} ${player.favorited ? 'favorited' : ''}`;
+                let className = 'player-item';
+                if (player.isKeeper) {
+                    className += ' keeper';
+                } else if (player.taken) {
+                    className += ' taken';
+                }
+                if (player.favorited) {
+                    className += ' favorited';
+                }
+                playerDiv.className = className;
                 
                 const tierClass = player.tier ? `tier-${Math.min(player.tier, 6)}` : 'tier-default';
                 
@@ -608,15 +651,17 @@
                             ${player.position} • ${player.team} • Bye: ${player.byeWeek}
                             ${player.sos ? ` • SOS: ${player.sos}` : ''}
                         </div>
-                        ${player.draftedBy ? `<div class="drafted-by">Drafted by ${player.draftedBy}</div>` : ''}
+                        ${player.draftedBy ? `<div class="drafted-by">${player.draftedBy}</div>` : ''}
                     </div>
                     <div class="player-actions">
                         <button class="action-btn favorite-btn ${player.favorited ? 'active' : ''}" 
-                                data-player-id="${player.id}" data-action="favorite">
+                                data-player-id="${player.id}" data-action="favorite"
+                                ${player.isKeeper ? 'disabled' : ''}>
                             ${player.favorited ? '⭐' : '☆'}
                         </button>
                         <button class="action-btn taken-btn ${player.taken ? 'active' : ''}" 
-                                data-player-id="${player.id}" data-action="taken">
+                                data-player-id="${player.id}" data-action="taken"
+                                ${player.isKeeper ? 'disabled' : ''}>
                             ${player.taken ? '✓' : '✗'}
                         </button>
                     </div>
@@ -638,6 +683,13 @@
                 const playerId = event.target.getAttribute('data-player-id');
                 const action = event.target.getAttribute('data-action');
                 
+                console.log('Button clicked:', { playerId, action }); // Debug log
+                
+                if (!playerId) {
+                    console.error('No player ID found');
+                    return;
+                }
+                
                 if (action === 'favorite') {
                     toggleFavorite(playerId);
                 } else if (action === 'taken') {
@@ -647,27 +699,37 @@
         }
 
         function toggleFavorite(playerId) {
+            console.log('Toggling favorite for:', playerId); // Debug log
             const player = allPlayers.find(p => p.id === playerId);
             if (player) {
                 player.favorited = !player.favorited;
+                console.log('Player favorited status:', player.favorited); // Debug log
                 saveData();
                 filterAndDisplay();
+            } else {
+                console.error('Player not found:', playerId);
             }
         }
 
         function toggleTaken(playerId) {
+            console.log('Toggling taken for:', playerId); // Debug log
             const player = allPlayers.find(p => p.id === playerId);
-            if (!player) return;
+            if (!player) {
+                console.error('Player not found:', playerId);
+                return;
+            }
 
             if (player.taken) {
                 // Un-draft player
                 player.taken = false;
                 player.draftedBy = null;
+                console.log('Player un-drafted'); // Debug log
                 saveData();
                 filterAndDisplay();
             } else {
                 // Show manager selection modal
                 selectedPlayerForDrafting = player;
+                console.log('Opening manager modal for:', player.playerName); // Debug log
                 document.getElementById('managerModal').style.display = 'block';
             }
         }
@@ -689,15 +751,16 @@
 
         function updateStats() {
             const total = allPlayers.length;
-            const taken = allPlayers.filter(p => p.taken).length;
+            const keepers = allPlayers.filter(p => p.isKeeper).length;
+            const taken = allPlayers.filter(p => p.taken && !p.isKeeper).length;
             const favorites = allPlayers.filter(p => p.favorited).length;
-            const available = total - taken;
+            const available = total - taken - keepers;
 
             document.getElementById('totalPlayers').textContent = total;
             document.getElementById('takenCount').textContent = taken;
             document.getElementById('favoritesCount').textContent = favorites;
             document.getElementById('floatAvailable').textContent = available;
-            document.getElementById('floatTaken').textContent = taken;
+            document.getElementById('floatTaken').textContent = taken + keepers;
         }
 
         function clearAllData() {
