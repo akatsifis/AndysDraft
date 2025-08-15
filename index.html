@@ -478,6 +478,11 @@
                         const playerName = player["PLAYER NAME"] || '';
                         const isKeeper = keeperPlayers.includes(playerName);
                         
+                        // Debug logging for keeper matching
+                        if (keeperPlayers.some(keeper => playerName.toLowerCase().includes(keeper.toLowerCase().split(' ')[0]))) {
+                            console.log(`Checking keeper: "${playerName}" - Match: ${isKeeper}`);
+                        }
+                        
                         return {
                             ...player,
                             id: `player_${index}_${player["PLAYER NAME"]?.replace(/[^a-zA-Z0-9]/g, '_')}_${player.TEAM}`,
@@ -495,6 +500,9 @@
                             isKeeper: isKeeper
                         };
                     });
+
+                console.log(`Total keepers found: ${allPlayers.filter(p => p.isKeeper).length}`);
+                console.log('Keepers found:', allPlayers.filter(p => p.isKeeper).map(p => p.playerName));
 
                 loadSavedData();
                 setupFilters();
