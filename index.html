@@ -385,7 +385,20 @@
 
         async function loadPlayers() {
             try {
-                const csvData = await window.fs.readFile('FantasyPros_2025_Draft_ALL_Rankings.csv', { encoding: 'utf8' });
+                // Try to load the CSV file
+                let csvData;
+                try {
+                    csvData = await window.fs.readFile('FantasyPros_2025_Draft_ALL_Rankings.csv', { encoding: 'utf8' });
+                } catch (fsError) {
+                    console.log('window.fs not available, trying fetch...');
+                    // Fallback to fetch for GitHub Pages
+                    const response = await fetch('FantasyPros_2025_Draft_ALL_Rankings.csv');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    csvData = await response.text();
+                }
+
                 const parsed = Papa.parse(csvData, {
                     header: true,
                     dynamicTyping: true,
@@ -417,7 +430,16 @@
             } catch (error) {
                 console.error('Error loading players:', error);
                 document.getElementById('playersList').innerHTML = 
-                    '<div style="text-align: center; padding: 20px; color: #ff6666;">Error loading player data. Please make sure the CSV file is uploaded.</div>';
+                    `<div style="text-align: center; padding: 20px; color: #ff6666;">
+                        <h3>Error loading player data</h3>
+                        <p>Please check:</p>
+                        <ul style="text-align: left; margin: 10px 0;">
+                            <li>CSV file is named exactly: <code>FantasyPros_2025_Draft_ALL_Rankings.csv</code></li>
+                            <li>CSV file is in the same folder as this HTML file</li>
+                            <li>Try refreshing the page</li>
+                        </ul>
+                        <p style="font-size: 12px; margin-top: 15px;">Error: ${error.message}</p>
+                    </div>`;
             }
         }
 
