@@ -44,8 +44,8 @@
         
         .stats-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
             margin: 15px 0;
         }
         
@@ -362,6 +362,10 @@
             <div class="stat-card">
                 <div class="stat-label">Total Players</div>
                 <div class="stat-value" id="totalPlayers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Keepers</div>
+                <div class="stat-value" id="keepersCount">0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Taken</div>
@@ -761,6 +765,7 @@
             const available = total - taken - keepers;
 
             document.getElementById('totalPlayers').textContent = total;
+            document.getElementById('keepersCount').textContent = keepers;
             document.getElementById('takenCount').textContent = taken;
             document.getElementById('favoritesCount').textContent = favorites;
             document.getElementById('floatAvailable').textContent = available;
